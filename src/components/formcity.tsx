@@ -4,7 +4,6 @@ type Props = {
     children?: ReactNode;
 }
 type State = {
-    content_id: string;
 }
 
 export class FormCity extends React.Component<Props>{
@@ -14,7 +13,7 @@ export class FormCity extends React.Component<Props>{
 
     render(){
         return <div>
-                
+            FORM CITY    
             </div>                 
     }
 }

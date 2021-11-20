@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { CityDto } from '../dtos/city.dto';
 import {CitiesTable} from './citiestable';
 import {FormCity} from './formcity';
 
@@ -14,15 +15,22 @@ export class Content extends React.Component<Props> {
     constructor(props:Props){
         super(props);
         this.state={
-            content: ''
+            content: 'home'
         }
+
+        this.showForm = this.showForm.bind(this);
+    }
+
+    showForm(dto: CityDto){
+        this.setState({content: 'new'})
+        console.log(dto);
     }
     
     render() {
         let scontent:ReactNode = null;
-        switch (this.props.content_id) {
+        switch ((this.state as State).content) {
             case 'home':
-                scontent = <CitiesTable />;
+                scontent = <CitiesTable showForm={this.showForm}/>;
                 break;
             case 'new':
                 scontent = <FormCity />;

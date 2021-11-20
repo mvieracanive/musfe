@@ -12,15 +12,28 @@ import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ConfirmDelete from './confirmdelete';
-import { breadcrumbsClasses } from "@mui/material";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 
 type Props = {
+    showForm: any;
     children?: ReactNode;
 }
 type State = {
     cities: CityDto[];
     openDialog: boolean;
+    openSnackBar: boolean;
+    severity: any;
+    msg: string;
 }
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+    props,
+    ref,
+  ) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export class CitiesTable extends React.Component<Props>{
     row: CityDto;
@@ -29,11 +42,12 @@ export class CitiesTable extends React.Component<Props>{
     constructor(props: Props){
         super(props);  
         
-        this.state = {cities: [], openDialog: false}
+        this.state = {cities: [], openDialog: false, openSnackBar: false}
 
         this.loadCities = this.loadCities.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.handleCloseSB = this.handleCloseSB.bind(this);
         this.handleDelRow = this.handleDelRow.bind(this);
         this.handleAPIDelete = this.handleAPIDelete.bind(this);
     }
@@ -44,8 +58,16 @@ export class CitiesTable extends React.Component<Props>{
         this.rowIndex = index;
     };
 
+    handleShowResultAlert(state: string, msg: string){
+        this.setState({openSnackBar: true});
+        this.setState({severity: state});
+        this.setState({msg: msg});
+    }
     handleClose (){
         this.setState({openDialog: false});
+    };
+    handleCloseSB (){
+        this.setState({openSnackBar: false});
     };
 
     handleDelRow(){
@@ -62,19 +84,25 @@ export class CitiesTable extends React.Component<Props>{
             default:
                 cities = first.concat(second);
         }
-        this.handleClose(); 
+         
         this.setState({cities});        
     }
     
-    handleAPIDelete(){
-        console.log('http://maiatest.domain.com:3002/dscity/'+this.row.name);
+    handleAPIDelete(){        
         fetch('http://maiatest.domain.com:3002/dscity/'+this.row.name, {
                 method: 'DELETE'
             })
             .then(response => response.json())
             .then(data => {
                 this.handleDelRow();
+                this.handleShowResultAlert('success', data.message);
+                this.handleClose();
                 console.log(data)
+            })
+            .catch((error) => {
+                console.log(error);
+                this.handleClose();
+                this.handleShowResultAlert('error', 'City could not be deleted');
             });                
     }
 
@@ -88,6 +116,10 @@ export class CitiesTable extends React.Component<Props>{
 
     render(){
         return <div>
+                <Stack spacing={2} alignContent='left' direction="row">
+                    <Button style={{margin: 5}} variant="contained" onClick={()=>this.props.showForm(new CityDto())}>New City</Button>
+                </Stack>
+                
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} size="small" aria-label="city list">
                         <TableHead>
@@ -112,7 +144,7 @@ export class CitiesTable extends React.Component<Props>{
                                             <IconButton onClick={()=>this.handleClickOpen(row, index)} color="primary" aria-label="delete">
                                                 <DeleteIcon />
                                             </IconButton>
-                                            <IconButton color="primary" aria-label="edit">
+                                            <IconButton color="primary" aria-label="edit" onClick={()=>this.props.showForm(row)}>
                                                 <EditIcon/>
                                             </IconButton>
                                         </Stack>
@@ -123,8 +155,7 @@ export class CitiesTable extends React.Component<Props>{
                                     <TableCell align="right">{row.name_native}</TableCell>
                                     <TableCell align="right">{row.country}</TableCell>
                                     <TableCell align="right">{row.continent}</TableCell>
-                                    <TableCell align="right">{row.population}</TableCell>
-                                    
+                                    <TableCell align="right">{row.population}</TableCell>                                    
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -136,6 +167,13 @@ export class CitiesTable extends React.Component<Props>{
                         handleDelete = {this.handleAPIDelete}
                         row={this.row}
                     />
+                    <Stack spacing={2} sx={{ width: '100%' }}>
+                    <Snackbar open={(this.state as State).openSnackBar} autoHideDuration={4000} onClose={this.handleCloseSB}>
+                        <Alert onClose={this.handleCloseSB} severity={(this.state as State).severity} sx={{ width: '100%' }}>
+                            {(this.state as State).msg}
+                        </Alert>                        
+                    </Snackbar>
+                    </Stack>                    
             </div>                 
     }
 
