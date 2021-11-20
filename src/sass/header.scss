@@ -1,0 +1,35 @@
+@import "./var";
+
+.Header {
+  > div {
+    width: 100%;
+    display: flex;
+    height: $headerFullHeight;
+    background-color: rgb(46, 46, 46);
+    font-size: 40px;
+    box-shadow: 10px 10px 20px rgb(216, 216, 216);
+
+    > div {
+      margin: auto auto;
+      background-color: white;
+      border-radius: 10%;
+      padding: 5px;
+      > h1 {
+        font-size: 1em;
+        display: flex;
+        margin: auto auto;
+        font-family: Snell Roundhand;
+        text-shadow: 0.1em 0.03em 3px #ebeaea;
+        > .Left {
+          margin-right: 5px;
+          color: rgb(0, 0, 0);
+        }
+        > .Right {
+          margin-left: 5px;
+          margin-top: 5px;
+          color: rgba(255, 0, 0, 0.78);
+        }
+      }
+    }
+  }
+}
