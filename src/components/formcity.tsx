@@ -155,10 +155,10 @@ export class FormCity extends React.Component<Props>{
                 }
                 else{
                     this.setState({population_err: false});
+                    (this.state as State).obj.population = parseInt(value);
                     this.population_helper += '';
                 }
-                this.valid = (this.valid ^ 16) ? (validator.isInt(value) ? this.valid | 16 : this.valid & 239) : this.valid;
-                (this.state as State).obj.population = parseInt(value);
+                this.valid = (this.valid ^ 16) ? (validator.isInt(value) ? this.valid | 16 : this.valid & 239) : this.valid;                
                 break;                
             case 'year':                 
                 if (!value){
@@ -178,9 +178,9 @@ export class FormCity extends React.Component<Props>{
                 else{
                     this.setState({year_err: false});
                     this.year_helper += '';
+                    (this.state as State).obj.founded = parseInt(value);
                 }
-                this.valid = (this.valid ^ 32) ? (validator.isInt(value) ? this.valid | 32 : this.valid & 223) : this.valid;
-                (this.state as State).obj.founded = parseInt(value);
+                this.valid = (this.valid ^ 32) ? (validator.isInt(value) ? this.valid | 32 : this.valid & 223) : this.valid;                
                 break;                
         }
     }
@@ -242,12 +242,10 @@ export class FormCity extends React.Component<Props>{
         this.check(v, id);
     }
     render(){
-        const cvc = (this.state as State).obj.country;
         return <div className="FormContainer">
             <Stack className='ButtonCls' spacing={2} alignContent='left' direction="row">
                 <Button variant="text" onClick={()=>this.props.showHome('')}>Home</Button>
             </Stack> 
-            <form> 
                 <div>
                     <div className='FirstColumn'>
                         <div onBlur={this.handleOnFocusLost}>
@@ -328,19 +326,19 @@ export class FormCity extends React.Component<Props>{
                                 onKeyPress={this.handleOnKeyPress}
                             />  
                         </div> 
+                        <div>
+                            <Landmarks
+                                data={this.landmarks}
+                                setLandmarks={this.setLandmarks}
+                            />
+                        </div>
                     </div>
 
                     <div className='SecondColumn'>
                         <p>Click on the map to select the city</p>
                         <div id='map'></div>
                     </div>
-                </div>
-                <div>
-                    <Landmarks
-                        data={this.landmarks}
-                        setLandmarks={this.setLandmarks}
-                    />
-                </div>
+                </div>                
                 <Stack className='ButtonCls' spacing={2} alignContent='left' direction="row-reverse">
                     <Button variant="text" onClick={()=>this.props.showHome('')}>Home</Button>
                     <Button disabled = {(this.state as State).disabled} style={{margin: 5}} variant="contained" 
@@ -352,13 +350,13 @@ export class FormCity extends React.Component<Props>{
                             {(this.state as State).snackBarMsg}                            
                         </Alert>                        
                     </Snackbar>
-                </Stack>                          
-            </form>
+                </Stack> 
         </div>
     }
 
     componentDidMount(){
         this.loadMap();
+        this.unFocusMap();
     }
 
     loadMap(){
@@ -406,6 +404,15 @@ export class FormCity extends React.Component<Props>{
         this.lng_value = latlng.lng;
         this.marker.bindPopup(`[${latlng.lat}, ${latlng.lng}]`)
                 .openPopup();
+    }
+
+    unFocusMap(){
+        const mape = document.getElementById('#map');
+        if (!mape) return;
+        const inners = mape.querySelectorAll('a');
+        inners.forEach(element => {
+            element.tabIndex = -1;
+        });
     }
 }
 

@@ -1,3 +1,10 @@
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
 .FormContainer {
   margin: 0;
   padding: 0px;
@@ -5,7 +12,7 @@
   p {
     white-space: pre-wrap;
   }
-  > form > div {
+  > div {
     display: flex;
   }
 }
@@ -40,35 +47,35 @@
   border: 1px solid gray;
 }
 .LandmarksContainer {
-  width: 50%;
+  width: 100%;
   > div {
     padding: 0px;
     margin: 0;
-    padding-left: 35px;
   }
 }
 
 @media only screen and (max-width: 600px) {
   .FormContainer {
-    > form > div {
+    > div {
       display: block;
     }
   }
   .FirstColumn {
-    width: 80%;
-    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 5px;
   }
   .SecondColumn {
-    text-align: center;
     width: 100%;
+    padding: 5px;
+    margin: 0;
   }
   #map {
-    width: 92%;
+    margin: 5px;
+    padding: 5px;
+    width: 98%;
   }
   .ButtonCls {
     padding-right: 0px;
-  }
-  .LandmarksContainer {
-    width: 92%;
   }
 }
