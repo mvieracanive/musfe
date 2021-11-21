@@ -45,6 +45,8 @@ export class Content extends React.Component<Props> {
 
     showHome(msg: string){
         this.setState({content: 'home'})
+        if (!msg)
+            return;
         this.setState({formmsg: msg})
         this.setState({openSnackBar: true})
     }

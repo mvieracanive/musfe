@@ -13,6 +13,9 @@
 .FirstColumn {
   width: 50%;
   margin: 0;
+  padding: 5px;
+  padding-left: 35px;
+  padding-right: 35px;
   text-align: right;
 }
 .SecondColumn {
@@ -36,6 +39,15 @@
   width: 80%;
   border: 1px solid gray;
 }
+.LandmarksContainer {
+  width: 50%;
+  > div {
+    padding: 0px;
+    margin: 0;
+    padding-left: 35px;
+  }
+}
+
 @media only screen and (max-width: 600px) {
   .FormContainer {
     > form > div {
@@ -43,7 +55,7 @@
     }
   }
   .FirstColumn {
-    width: 100%;
+    width: 80%;
     text-align: center;
   }
   .SecondColumn {
@@ -55,5 +67,8 @@
   }
   .ButtonCls {
     padding-right: 0px;
+  }
+  .LandmarksContainer {
+    width: 92%;
   }
 }

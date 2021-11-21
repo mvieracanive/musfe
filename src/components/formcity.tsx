@@ -1,5 +1,4 @@
 import React from 'react';
-import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { ReactNode } from 'react';
 import '../sass/formcity.scss';
@@ -13,6 +12,7 @@ import * as L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import newMarkerIco from '../images/marker.png';
+import { Landmarks } from './landmarks'
 
 const validator = require('validator');
 
@@ -46,12 +46,14 @@ export class FormCity extends React.Component<Props>{
     marker: any;
     lat_value: number;
     lng_value: number;
+    landmarks: string[];
     name_helper:string = ''
     nativename_helper:string = ''
     country_helper:string = ''
     continent_helper:string = ''
     population_helper:string = ''
     year_helper:string = ''
+    update: string = '';
     valid: number = 0; //fields required so false, form is not valid, conditions are for 8 bits
 
     constructor(props:Props){
@@ -62,8 +64,15 @@ export class FormCity extends React.Component<Props>{
         }
         this.lng_value = props.obj.longitude;
         this.lat_value = props.obj.latitude;
-        if (props.obj.name)
+        if (props.obj.name){
             this.valid = 63;
+            this.update = props.obj.name;
+        }
+            
+        if (!props.obj.landmarks)
+            this.landmarks = [];
+        else
+            this.landmarks = props.obj.landmarks;
 
         this.check = this.check.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -73,8 +82,12 @@ export class FormCity extends React.Component<Props>{
         this.handleCloseSB = this.handleCloseSB.bind(this);
         this.loadMap = this.loadMap.bind(this);
         this.addMarker = this.addMarker.bind(this);
+        this.setLandmarks = this.setLandmarks.bind(this);
     }
 
+    setLandmarks(data: string[]){
+        this.landmarks = data;
+    }
     check(value:any, targetid: string){
         switch(targetid){
             case 'name': 
@@ -106,6 +119,9 @@ export class FormCity extends React.Component<Props>{
                 if (!value){
                     this.setState({country_err: true});
                     this.country_helper = 'Field name cannot be empty'
+                }
+                else{
+                    this.setState({country_err: false});
                     this.country_helper = '';
                 }
                 this.valid = (this.valid ^ 4) ? (value ? this.valid | 4 : this.valid & 251) : this.valid;
@@ -122,8 +138,7 @@ export class FormCity extends React.Component<Props>{
                 }
                 this.valid = (this.valid ^ 8) ? (value ? this.valid | 8 : this.valid & 247) : this.valid;
                 break;
-            case 'population': 
-                (this.state as State).obj.population = value;
+            case 'population':                 
                 if (!value){
                     this.setState({population_err: true});
                     this.population_helper = 'Field name cannot be empty\n';
@@ -131,7 +146,7 @@ export class FormCity extends React.Component<Props>{
                 else{
                     this.setState({population_err: false});
                     this.population_helper = '';
-                }
+                }                
                 this.valid = (this.valid ^ 16) ? (value ? this.valid | 16 : this.valid & 239) : this.valid;
                 
                 if (!validator.isInt(value)){
@@ -143,9 +158,9 @@ export class FormCity extends React.Component<Props>{
                     this.population_helper += '';
                 }
                 this.valid = (this.valid ^ 16) ? (validator.isInt(value) ? this.valid | 16 : this.valid & 239) : this.valid;
+                (this.state as State).obj.population = parseInt(value);
                 break;                
-            case 'year': 
-                (this.state as State).obj.founded = value;
+            case 'year':                 
                 if (!value){
                     this.setState({year_err: true});
                     this.year_helper = 'Field name cannot be empty\n';
@@ -165,20 +180,26 @@ export class FormCity extends React.Component<Props>{
                     this.year_helper += '';
                 }
                 this.valid = (this.valid ^ 32) ? (validator.isInt(value) ? this.valid | 32 : this.valid & 223) : this.valid;
+                (this.state as State).obj.founded = parseInt(value);
                 break;                
         }
     }
 
     handleOnSubmit(e:any){
-        if ((this.valid & 255) !== 63 || !(this.lat_value && this.lng_value)){ //63 for 6 conditions 255 for 8
+        if ((this.valid & 255) !== 63 || !(this.lat_value && this.lng_value && this.landmarks.length!=0)){ //63 for 6 conditions 255 for 8
             this.setState({openSnackBar: true})
             return;
         }
         const obj = (this.state as State).obj;
         obj.latitude = this.lat_value;
         obj.longitude = this.lng_value;
+        obj.landmarks = this.landmarks;
+        const o = JSON.stringify(obj);
         //this.setState({disabled: true});
-        fetch('http://maiatest.domain.com:3002/dscity', {
+        let url='http://maiatest.domain.com:3002/dscity';
+        if (this.update)
+            url=`http://maiatest.domain.com:3002/dscity/${this.update}`;
+        fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(obj), // data can be `string` or {object}!
                 headers:{
@@ -221,12 +242,16 @@ export class FormCity extends React.Component<Props>{
         this.check(v, id);
     }
     render(){
+        const cvc = (this.state as State).obj.country;
         return <div className="FormContainer">
+            <Stack className='ButtonCls' spacing={2} alignContent='left' direction="row">
+                <Button variant="text" onClick={()=>this.props.showHome('')}>Home</Button>
+            </Stack> 
             <form> 
                 <div>
                     <div className='FirstColumn'>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="name"
                                 margin="normal"
                                 required
@@ -239,7 +264,7 @@ export class FormCity extends React.Component<Props>{
                             />  
                         </div>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="nativename"
                                 margin="normal"
                                 required
@@ -252,7 +277,7 @@ export class FormCity extends React.Component<Props>{
                             />  
                         </div>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="country"
                                 margin="normal"
                                 required
@@ -265,7 +290,7 @@ export class FormCity extends React.Component<Props>{
                             />  
                         </div>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="continent"
                                 margin="normal"
                                 required
@@ -278,7 +303,7 @@ export class FormCity extends React.Component<Props>{
                             />  
                         </div>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="population"
                                 margin="normal"
                                 required
@@ -291,7 +316,7 @@ export class FormCity extends React.Component<Props>{
                             />  
                         </div>
                         <div onBlur={this.handleOnFocusLost}>
-                            <TextField
+                            <TextField fullWidth
                                 id="year"
                                 margin="normal"
                                 required
@@ -310,7 +335,14 @@ export class FormCity extends React.Component<Props>{
                         <div id='map'></div>
                     </div>
                 </div>
+                <div>
+                    <Landmarks
+                        data={this.landmarks}
+                        setLandmarks={this.setLandmarks}
+                    />
+                </div>
                 <Stack className='ButtonCls' spacing={2} alignContent='left' direction="row-reverse">
+                    <Button variant="text" onClick={()=>this.props.showHome('')}>Home</Button>
                     <Button disabled = {(this.state as State).disabled} style={{margin: 5}} variant="contained" 
                         onClick={this.handleOnSubmit}>Submit</Button>
                 </Stack>  
@@ -353,6 +385,7 @@ export class FormCity extends React.Component<Props>{
             });
             this.marker = L.marker([this.lat_value, this.lng_value], {icon: myicon});
             this.map.addLayer(this.marker);
+            this.map.flyTo([this.lat_value, this.lng_value], 2)
         }
     }
 
