@@ -168,11 +168,11 @@ export class CitiesTable extends React.Component<Props>{
                         row={this.row}
                     />
                     <Stack spacing={2} sx={{ width: '100%' }}>
-                    <Snackbar open={(this.state as State).openSnackBar} autoHideDuration={4000} onClose={this.handleCloseSB}>
-                        <Alert onClose={this.handleCloseSB} severity={(this.state as State).severity} sx={{ width: '100%' }}>
-                            {(this.state as State).msg}
-                        </Alert>                        
-                    </Snackbar>
+                        <Snackbar open={(this.state as State).openSnackBar} autoHideDuration={4000} onClose={this.handleCloseSB}>
+                            <Alert onClose={this.handleCloseSB} severity={(this.state as State).severity} sx={{ width: '100%' }}>
+                                {(this.state as State).msg}
+                            </Alert>                        
+                        </Snackbar>
                     </Stack>                    
             </div>                 
     }
