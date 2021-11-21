@@ -22,20 +22,16 @@ type Props = {
     children?: ReactNode;
 }
 type State = {
-    name_value: string;
+    obj: CityDto;
     name_err:boolean;
-    nativename_value: string;
     nativename_err:boolean;
-    country_value: string;
     country_err:boolean;
-    continent_value: string;
     continent_err:boolean;
-    population_value: string;
     population_err:boolean;
-    year_value: string;
     year_err:boolean;    
     disabled: boolean;
     openSnackBar: boolean;
+    snackBarMsg: string;
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
@@ -61,8 +57,13 @@ export class FormCity extends React.Component<Props>{
     constructor(props:Props){
         super(props);
         this.state = { 
-            obj: props.obj           
+            obj: props.obj,
+            snackBarMsg: 'Please, review the form. Ensure you have filled all required fields. Location on the map is also required.'
         }
+        this.lng_value = props.obj.longitude;
+        this.lat_value = props.obj.latitude;
+        if (props.obj.name)
+            this.valid = 63;
 
         this.check = this.check.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -77,7 +78,7 @@ export class FormCity extends React.Component<Props>{
     check(value:any, targetid: string){
         switch(targetid){
             case 'name': 
-                (this.state as State).name_value = value;
+                (this.state as State).obj.name = value;
                 if (!value){
                     this.setState({name_err: true});
                     this.name_helper = 'Field name cannot be empty';
@@ -89,7 +90,7 @@ export class FormCity extends React.Component<Props>{
                 this.valid = (this.valid ^ 1) ? (value ? this.valid | 1 : this.valid & 254) : this.valid;//for refreshing the validity state of form.
                 break;
             case 'nativename': 
-                (this.state as State).nativename_value = value;
+                (this.state as State).obj.name_native = value;
                 if (!value){
                     this.setState({nativename_err: true});
                     this.nativename_helper = 'Field name cannot be empty';
@@ -101,19 +102,16 @@ export class FormCity extends React.Component<Props>{
                 this.valid = (this.valid ^ 2) ? (value ? this.valid | 2 : this.valid & 253) : this.valid;
                 break;
             case 'country': 
-                (this.state as State).country_value = value;
+                (this.state as State).obj.country = value;
                 if (!value){
                     this.setState({country_err: true});
-                    this.country_helper = 'Field name cannot be empty';
-                }
-                else{
-                    this.setState({country_err: false});
+                    this.country_helper = 'Field name cannot be empty'
                     this.country_helper = '';
                 }
                 this.valid = (this.valid ^ 4) ? (value ? this.valid | 4 : this.valid & 251) : this.valid;
                 break;
             case 'continent': 
-                (this.state as State).continent_value = value;
+                (this.state as State).obj.continent = value;
                 if (!value){
                     this.setState({continent_err: true});
                     this.continent_helper = 'Field name cannot be empty';
@@ -125,7 +123,7 @@ export class FormCity extends React.Component<Props>{
                 this.valid = (this.valid ^ 8) ? (value ? this.valid | 8 : this.valid & 247) : this.valid;
                 break;
             case 'population': 
-                (this.state as State).population_value = value;
+                (this.state as State).obj.population = value;
                 if (!value){
                     this.setState({population_err: true});
                     this.population_helper = 'Field name cannot be empty\n';
@@ -147,7 +145,7 @@ export class FormCity extends React.Component<Props>{
                 this.valid = (this.valid ^ 16) ? (validator.isInt(value) ? this.valid | 16 : this.valid & 239) : this.valid;
                 break;                
             case 'year': 
-                (this.state as State).year_value = value;
+                (this.state as State).obj.founded = value;
                 if (!value){
                     this.setState({year_err: true});
                     this.year_helper = 'Field name cannot be empty\n';
@@ -176,19 +174,23 @@ export class FormCity extends React.Component<Props>{
             this.setState({openSnackBar: true})
             return;
         }
+        const obj = (this.state as State).obj;
+        obj.latitude = this.lat_value;
+        obj.longitude = this.lng_value;
         //this.setState({disabled: true});
         fetch('http://maiatest.domain.com:3002/dscity', {
                 method: 'POST',
-                body: JSON.stringify(this.props.obj), // data can be `string` or {object}!
+                body: JSON.stringify(obj), // data can be `string` or {object}!
                 headers:{
                     'Content-Type': 'application/json'
                 }
             })
             .then(response => response.json())
             .then(data => {                
-                if (!data.status){
-                    this.setState({openSnackBar: true});
-                }                    
+                if (!data.status || data.error){
+                    const st = data.message.join('. ')
+                    this.setState({openSnackBar: true, snackBarMsg: st});
+                }  
                 else{
                     this.props.showHome(`${data.message}`);    
                 }
@@ -230,7 +232,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Name"
                                 error= {(this.state as State).name_err} 
-                                value={(this.state as State).name_value}
+                                value={(this.state as State).obj.name}
                                 helperText={this.name_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -243,7 +245,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Native Name"
                                 error= {(this.state as State).nativename_err} 
-                                value={(this.state as State).nativename_value}
+                                value={(this.state as State).obj.name_native}
                                 helperText={this.nativename_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -256,7 +258,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Country"
                                 error= {(this.state as State).country_err} 
-                                value={(this.state as State).country_value}
+                                value={(this.state as State).obj.country}
                                 helperText={this.country_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -269,7 +271,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Continent"
                                 error= {(this.state as State).continent_err} 
-                                value={(this.state as State).continent_value}
+                                value={(this.state as State).obj.continent}
                                 helperText={this.continent_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -282,7 +284,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Population"
                                 error= {(this.state as State).population_err} 
-                                value={(this.state as State).population_value}
+                                value={(this.state as State).obj.population}
                                 helperText={this.population_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -295,7 +297,7 @@ export class FormCity extends React.Component<Props>{
                                 required
                                 label="Foundation Year"
                                 error= {(this.state as State).year_err} 
-                                value={(this.state as State).year_value}
+                                value={(this.state as State).obj.founded}
                                 helperText={this.year_helper}
                                 onChange={this.handleChange}
                                 onKeyPress={this.handleOnKeyPress}
@@ -315,7 +317,7 @@ export class FormCity extends React.Component<Props>{
                 <Stack spacing={2} sx={{ width: '100%' }}>
                     <Snackbar open={(this.state as State).openSnackBar} autoHideDuration={4000} onClose={this.handleCloseSB}>
                         <Alert onClose={this.handleCloseSB} severity='error' sx={{ width: '100%' }}>
-                            Please, review the form. Ensure you have filled all required fields. Location on the map is also required.
+                            {(this.state as State).snackBarMsg}                            
                         </Alert>                        
                     </Snackbar>
                 </Stack>                          
@@ -338,9 +340,20 @@ export class FormCity extends React.Component<Props>{
             iconUrl: icon,
             shadowUrl: iconShadow
         });
-        L.Marker.prototype.options.icon = DefaultIcon;
+        L.Marker.prototype.options.icon = DefaultIcon;       
 
         this.map.on('click', (e:any)=>this.addMarker(e.latlng));
+
+        if (this.lat_value && this.lng_value){
+            let myicon = L.icon({
+                iconUrl: newMarkerIco,
+                iconSize: [15, 15],
+                popupAnchor: [0,-7],
+                className: 'MapMarker'
+            });
+            this.marker = L.marker([this.lat_value, this.lng_value], {icon: myicon});
+            this.map.addLayer(this.marker);
+        }
     }
 
     addMarker(latlng: any){  
