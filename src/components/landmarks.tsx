@@ -15,6 +15,8 @@ type Props = {
 }
 type State = {
     chipData: ChipData[];
+    error: boolean;
+    helper: string;
 }
 
 export class Landmarks extends React.Component<Props>{
@@ -22,37 +24,50 @@ export class Landmarks extends React.Component<Props>{
     constructor(props:Props){
         super(props);
         const datachips = props.data.map((c, i)=>({key: i, label: c}));
-        this.state = {chipData: datachips};
+        this.state = {chipData: datachips, error: false, helper: ''};
         this.key = datachips.length;
 
         this.handleOnKeyPress = this.handleOnKeyPress.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
+        this.handleOnFocusLost = this.handleOnFocusLost.bind(this);
     }
 
     handleDelete (chipToDelete: ChipData){
         const newchips = (this.state as State).chipData.filter((chip) => chip.key !== chipToDelete.key);
         this.props.setLandmarks(newchips.map((v)=>v.label));
         this.setState({chipData: newchips});
+        if (newchips.length == 0)
+            this.setState({error: true, helper: 'Landmark list cannot be empty'}) 
     };
 
     handleOnKeyPress(e:any){
         if (e.charCode === 13){
             const v = e.target.value.trim();
+            if (!v)
+                return;
             e.target.value = '';
             const data = (this.state as State).chipData;
             data.push({key: this.key++, label: v});
             this.props.setLandmarks(data.map((v)=>v.label));
             this.setState({chipData: data});
+            this.setState({error: false, helper: ''})
         }
+    }
+    handleOnFocusLost(){
+        if ((this.state as State).chipData.length != 0)
+            return;
+        this.setState({error: true, helper: 'Landmark list cannot be empty'})
     }
     render(){
         return <div className='LandmarksContainer' >
-            <div>
+            <div onBlur={this.handleOnFocusLost}>
                 <TextField fullWidth
                     id="name"
                     required
                     margin="normal"
                     label="Landmarks"
+                    error={(this.state as State).error}
+                    helperText={(this.state as State).helper}
                     onKeyPress={this.handleOnKeyPress}
                 />
             </div>

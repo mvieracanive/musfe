@@ -182,7 +182,7 @@ export class FormCity extends React.Component<Props>{
                     (this.state as State).obj.founded = parseInt(value);
                 }
                 this.valid = (this.valid ^ 32) ? (validator.isInt(value) ? this.valid | 32 : this.valid & 223) : this.valid;                
-                break;                
+                break;              
         }
     }
 
