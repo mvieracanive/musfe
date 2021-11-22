@@ -1,0 +1,1 @@
+export const ServerPath='http://maiatest.domain.com:3002'

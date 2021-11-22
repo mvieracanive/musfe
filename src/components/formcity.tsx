@@ -12,7 +12,8 @@ import * as L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import newMarkerIco from '../images/marker.png';
-import { Landmarks } from './landmarks'
+import { Landmarks } from './landmarks';
+import { ServerPath } from '../config';
 
 const validator = require('validator');
 
@@ -196,9 +197,9 @@ export class FormCity extends React.Component<Props>{
         obj.landmarks = this.landmarks;
         const o = JSON.stringify(obj);
         //this.setState({disabled: true});
-        let url='http://maiatest.domain.com:3002/dscity';
+        let url=`${ServerPath}/dscity`;
         if (this.update)
-            url=`http://maiatest.domain.com:3002/dscity/${this.update}`;
+            url=`${ServerPath}:3002/dscity/${this.update}`;
         fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(obj), // data can be `string` or {object}!
@@ -356,7 +357,6 @@ export class FormCity extends React.Component<Props>{
 
     componentDidMount(){
         this.loadMap();
-        this.unFocusMap();
     }
 
     loadMap(){
@@ -404,15 +404,6 @@ export class FormCity extends React.Component<Props>{
         this.lng_value = latlng.lng;
         this.marker.bindPopup(`[${latlng.lat}, ${latlng.lng}]`)
                 .openPopup();
-    }
-
-    unFocusMap(){
-        const mape = document.getElementById('#map');
-        if (!mape) return;
-        const inners = mape.querySelectorAll('a');
-        inners.forEach(element => {
-            element.tabIndex = -1;
-        });
     }
 }
 
