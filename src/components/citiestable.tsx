@@ -15,6 +15,7 @@ import ConfirmDelete from './confirmdelete';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import {ServerPath} from '../config';
 
 type Props = {
     showForm: any;
@@ -89,7 +90,7 @@ export class CitiesTable extends React.Component<Props>{
     }
     
     handleAPIDelete(){        
-        fetch('http://maiatest.domain.com:3002/dscity/'+this.row.name, {
+        fetch(`${ServerPath}/dscity/`+this.row.name, {
                 method: 'DELETE'
             })
             .then(response => response.json())
@@ -178,7 +179,7 @@ export class CitiesTable extends React.Component<Props>{
     }
 
     componentDidMount(){
-        fetch('http://maiatest.domain.com:3002/dscity')
+        fetch(`${ServerPath}/dscity`)
             .then(response => response.json())
             .then(data => this.loadCities(data));    
     }

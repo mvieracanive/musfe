@@ -199,7 +199,7 @@ export class FormCity extends React.Component<Props>{
         //this.setState({disabled: true});
         let url=`${ServerPath}/dscity`;
         if (this.update)
-            url=`${ServerPath}:3002/dscity/${this.update}`;
+            url=`${ServerPath}/dscity/${this.update}`;
         fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(obj), // data can be `string` or {object}!
