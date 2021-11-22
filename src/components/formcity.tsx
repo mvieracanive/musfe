@@ -13,7 +13,7 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import newMarkerIco from '../images/marker.png';
 import { Landmarks } from './landmarks';
-import { ServerPath } from '../config';
+import {CityService} from '../services/city.serv';
 
 const validator = require('validator');
 
@@ -196,18 +196,11 @@ export class FormCity extends React.Component<Props>{
         obj.longitude = this.lng_value;
         obj.landmarks = this.landmarks;
         const o = JSON.stringify(obj);
-        //this.setState({disabled: true});
-        let url=`${ServerPath}/dscity`;
-        if (this.update)
-            url=`${ServerPath}/dscity/${this.update}`;
-        fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(obj), // data can be `string` or {object}!
-                headers:{
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
+        let promise = CityService.newCity(obj);
+        if (this.update){
+            promise = CityService.updCity(this.update, obj)
+        }
+        promise.then(response => response.json())
             .then(data => {                
                 if (!data.status || data.error){
                     const st = data.message.join('. ')
@@ -221,8 +214,7 @@ export class FormCity extends React.Component<Props>{
             .catch((error) => {
                 console.log(error);
                 this.setState({openSnackBar: true})
-            });  
-                
+            });                  
     }
 
     handleCloseSB (){
