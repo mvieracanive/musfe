@@ -16,6 +16,9 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import {CityService} from '../services/city.serv';
+import TablePagination from '@mui/material/TablePagination';
+
+import TableFooter from '@mui/material/TableFooter';
 
 type Props = {
     showForm: any;
@@ -27,6 +30,8 @@ type State = {
     openSnackBar: boolean;
     severity: any;
     msg: string;
+    rowsPerPage: number;
+    page: number;
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
@@ -43,7 +48,13 @@ export class CitiesTable extends React.Component<Props>{
     constructor(props: Props){
         super(props);  
         
-        this.state = {cities: [], openDialog: false, openSnackBar: false}
+        this.state = {
+            cities: [], 
+            openDialog: false, 
+            openSnackBar: false,
+            page: 0,
+            rowsPerPage:10
+        }
 
         this.loadCities = this.loadCities.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -51,6 +62,8 @@ export class CitiesTable extends React.Component<Props>{
         this.handleCloseSB = this.handleCloseSB.bind(this);
         this.handleDelRow = this.handleDelRow.bind(this);
         this.handleAPIDelete = this.handleAPIDelete.bind(this);
+        this.handleChangePage = this.handleChangePage.bind(this);
+        this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
     }
 
     handleClickOpen (row: CityDto, index: number){
@@ -132,8 +145,11 @@ export class CitiesTable extends React.Component<Props>{
                                 
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {(this.state as State).cities.map((row, index) => (
+                        <TableBody>                         
+                            {((this.state as State).rowsPerPage > 0
+                                ? (this.state as State).cities.slice((this.state as State).page * (this.state as State).rowsPerPage, (this.state as State).page * (this.state as State).rowsPerPage + (this.state as State).rowsPerPage)
+                                : (this.state as State).cities
+                            ).map((row, index) => (
                                 <TableRow
                                     key={row.name}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -158,6 +174,25 @@ export class CitiesTable extends React.Component<Props>{
                                 </TableRow>
                             ))}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={[10, 50, { label: 'All', value: -1 }]}
+                                colSpan={3}
+                                count={(this.state as State).cities.length}
+                                rowsPerPage={(this.state as State).rowsPerPage}
+                                page={(this.state as State).page}
+                                SelectProps={{
+                                    inputProps: {
+                                    'aria-label': 'rows per page',
+                                    },
+                                    native: true,
+                                }}
+                                onPageChange={this.handleChangePage}
+                                onRowsPerPageChange={this.handleChangeRowsPerPage}
+                            />
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                     </TableContainer>
                     <ConfirmDelete 
@@ -175,6 +210,20 @@ export class CitiesTable extends React.Component<Props>{
                     </Stack>                    
             </div>                 
     }
+
+    handleChangePage(
+        event: React.MouseEvent<HTMLButtonElement> | null,
+        newPage: number,
+    ){
+        this.setState({page: newPage});
+    };
+    
+    handleChangeRowsPerPage (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) {
+        this.setState({rowsPerPage: parseInt(event.target.value, 10)});
+        this.setState({page: 0});
+    };
 
     componentDidMount(){
         CityService.getCities()
