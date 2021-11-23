@@ -195,12 +195,9 @@ export class FormCity extends React.Component<Props>{
         obj.latitude = this.lat_value;
         obj.longitude = this.lng_value;
         obj.landmarks = this.landmarks;
-        const o = JSON.stringify(obj);
-        let promise = CityService.newCity(obj);
+        
         if (this.update){
-            promise = CityService.updCity(this.update, obj)
-        }
-        promise.then(response => response.json())
+            CityService.updCity(this.update, obj).then(response => response.json())
             .then(data => {                
                 if (!data.status || data.error){
                     const st = data.message.join('. ')
@@ -214,7 +211,25 @@ export class FormCity extends React.Component<Props>{
             .catch((error) => {
                 console.log(error);
                 this.setState({openSnackBar: true})
-            });                  
+            });  
+        }
+        else{
+            CityService.newCity(obj).then(response => response.json())
+            .then(data => {                
+                if (!data.status || data.error){
+                    const st = data.message.join('. ')
+                    this.setState({openSnackBar: true, snackBarMsg: st});
+                }  
+                else{
+                    this.props.showHome(`${data.message}`);    
+                }
+                
+            })
+            .catch((error) => {
+                console.log(error);
+                this.setState({openSnackBar: true})
+            });  
+        }           
     }
 
     handleCloseSB (){

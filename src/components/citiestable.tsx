@@ -151,7 +151,7 @@ export class CitiesTable extends React.Component<Props>{
                                 : (this.state as State).cities
                             ).map((row, index) => (
                                 <TableRow
-                                    key={row.name}
+                                    key={index}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell align="left">
