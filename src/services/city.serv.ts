@@ -6,28 +6,30 @@ export class CityService {
       return fetch(`${ServerPath}/dscity`)
     }  
 
-    static delCities(name: string) {
-        return fetch(`${ServerPath}/dscity/`+name, {
+    static async delCities(name: string) {
+        const res = await fetch(`${ServerPath}/dscity/`+name, {
             method: 'DELETE'
-        })
+        });
+        return await res.json();
     }
-    static newCity(obj: CityDto){
-        return fetch(`${ServerPath}/dscity`, {
+    static async newCity(obj: CityDto){
+        const res = await fetch(`${ServerPath}/dscity`, {
             method: 'POST',
             body: JSON.stringify(obj),
             headers:{
                 'Content-Type': 'application/json'
             }
         })
+        return await res.json();
     } 
-
-    static updCity(name: string, obj: CityDto){
-        return fetch(`${ServerPath}/dscity/${name}`, {
+    static async updCity(name: string, obj: CityDto){
+        const res = await fetch(`${ServerPath}/dscity/${name}`, {
             method: 'POST',
             body: JSON.stringify(obj),
             headers:{
                 'Content-Type': 'application/json'
             }
         })
+        return await res.json();
     } 
 }

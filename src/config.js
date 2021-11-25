@@ -1,1 +1,1 @@
-export const ServerPath='http://maiatest.domain.com:3002'
+export const ServerPath='http://mviera.tk:8003/dscity'

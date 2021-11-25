@@ -186,7 +186,7 @@ export class FormCity extends React.Component<Props>{
         }
     }
 
-    handleOnSubmit(e:any){
+    async handleOnSubmit(e:any){
         if ((this.valid & 255) !== 63 || !(this.lat_value && this.lng_value && this.landmarks.length!=0)){ //63 for 6 conditions 255 for 8
             this.setState({openSnackBar: true})
             return;
@@ -195,10 +195,9 @@ export class FormCity extends React.Component<Props>{
         obj.latitude = this.lat_value;
         obj.longitude = this.lng_value;
         obj.landmarks = this.landmarks;
-        
-        if (this.update){
-            CityService.updCity(this.update, obj).then(response => response.json())
-            .then(data => {                
+        try{
+            if (this.update){
+                const data = await CityService.updCity(this.update, obj);
                 if (!data.status || data.error){
                     const st = data.message.join('. ')
                     this.setState({openSnackBar: true, snackBarMsg: st});
@@ -206,30 +205,23 @@ export class FormCity extends React.Component<Props>{
                 else{
                     this.props.showHome(`${data.message}`);    
                 }
-                
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({openSnackBar: true})
-            });  
+            }
+            else{
+                const data = await CityService.newCity(obj);                
+                if (!data.status || data.error){
+                    const st = data.message.join('. ')
+                    this.setState({openSnackBar: true, snackBarMsg: st});
+                }  
+                else{
+                    this.props.showHome(`${data.message}`);    
+                }
+            } 
         }
-        else{
-            CityService.newCity(obj).then(response => response.json())
-            .then(data => {                
-                if (!data.status || data.error){
-                    const st = data.message.join('. ')
-                    this.setState({openSnackBar: true, snackBarMsg: st});
-                }  
-                else{
-                    this.props.showHome(`${data.message}`);    
-                }
-                
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({openSnackBar: true})
-            });  
-        }           
+        catch(e){
+            console.log(e);
+            this.setState({openSnackBar: true})
+        }
+                  
     }
 
     handleCloseSB (){

@@ -102,20 +102,19 @@ export class CitiesTable extends React.Component<Props>{
         this.setState({cities});        
     }
     
-    handleAPIDelete(){        
-        CityService.delCities(this.row.name)
-            .then(response => response.json())
-            .then(data => {
-                this.handleDelRow();
-                this.handleShowResultAlert('success', data.message);
-                this.handleClose();
-                console.log(data)
-            })
-            .catch((error) => {
-                console.log(error);
-                this.handleClose();
-                this.handleShowResultAlert('error', 'City could not be deleted');
-            });                
+    async handleAPIDelete(){        
+        try{
+            const data = await CityService.delCities(this.row.name);
+            this.handleDelRow();
+            this.handleShowResultAlert('success', data.message);
+            this.handleClose();
+            console.log(data)
+        }
+        catch(error){
+            console.log(error);
+            this.handleClose();
+            this.handleShowResultAlert('error', 'City could not be deleted');
+        };                
     }
 
     loadCities(data:CityDto[]){ 
