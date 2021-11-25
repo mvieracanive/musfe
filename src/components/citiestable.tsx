@@ -17,6 +17,9 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import {CityService} from '../services/city.serv';
 import TablePagination from '@mui/material/TablePagination';
+import axios from 'axios';
+import {ServerPath} from '../config.js'
+
 
 import TableFooter from '@mui/material/TableFooter';
 
@@ -84,22 +87,8 @@ export class CitiesTable extends React.Component<Props>{
         this.setState({openSnackBar: false});
     };
 
-    handleDelRow(){
-        const first = (this.state as State).cities.slice(0, this.rowIndex);
-        const second = (this.state as State).cities.slice(this.rowIndex+1);
-        let cities: CityDto[] = [];
-        switch(this.rowIndex){
-            case 0: 
-                cities = second;
-                break;
-            case (this.state as State).cities.length-1:
-                cities = first;
-                break;
-            default:
-                cities = first.concat(second);
-        }
-         
-        this.setState({cities});        
+    async handleDelRow(){
+        this.setState({cities: await CityService.getCities(), page: 0});        
     }
     
     async handleAPIDelete(){        
@@ -224,9 +213,9 @@ export class CitiesTable extends React.Component<Props>{
         this.setState({page: 0});
     };
 
-    componentDidMount(){
-        CityService.getCities()
-            .then(response => response.json())
-            .then(data => this.loadCities(data));    
+    async componentDidMount(){
+        const data = await CityService.getCities()
+        this.loadCities(data);    
+        console.log(data)
     }
 }

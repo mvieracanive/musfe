@@ -1,35 +1,33 @@
 import {ServerPath} from '../config';
 import { CityDto } from '../dtos/city.dto';
+import axios from 'axios';
 
 export class CityService {
-    static getCities() {
-      return fetch(`${ServerPath}/dscity`)
+    static async getCities() {
+        const res = await axios.get(`${ServerPath}/dscity`)
+        return res.data;
     }  
 
     static async delCities(name: string) {
-        const res = await fetch(`${ServerPath}/dscity/`+name, {
-            method: 'DELETE'
-        });
-        return await res.json();
+        const res = await axios.delete(`${ServerPath}/dscity/`+name);
+        return await res.data;
     }
     static async newCity(obj: CityDto){
-        const res = await fetch(`${ServerPath}/dscity`, {
-            method: 'POST',
-            body: JSON.stringify(obj),
-            headers:{
-                'Content-Type': 'application/json'
+        let axiosConfig = {
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
             }
-        })
-        return await res.json();
+          };
+        const res = await axios.post(`${ServerPath}/dscity`, obj, axiosConfig)
+        return await res.data;
     } 
     static async updCity(name: string, obj: CityDto){
-        const res = await fetch(`${ServerPath}/dscity/${name}`, {
-            method: 'POST',
-            body: JSON.stringify(obj),
-            headers:{
-                'Content-Type': 'application/json'
+        let axiosConfig = {
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
             }
-        })
-        return await res.json();
+          };
+        const res = await axios.post(`${ServerPath}/dscity/${name}`, obj, axiosConfig)
+        return await res.data;               
     } 
 }
