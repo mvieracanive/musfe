@@ -1,5 +1,8 @@
 # Getting Started with Create React App
 
+Node version: 14.15.1
+NPM version: 7.14.0
+
 FILE src/config.js MUST BE MODIFIED IN ORDER TO DEFINE THE BACK-END SERVER
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
