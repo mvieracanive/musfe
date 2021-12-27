@@ -37,7 +37,7 @@
   margin: 0;
 }
 .ButtonCls {
-  padding-right: 50px;
+  padding-right: 5px;
 }
 
 #map {
@@ -49,8 +49,10 @@
 .LandmarksContainer {
   width: 100%;
   > div {
-    padding: 0px;
-    margin: 0;
+    padding: 10px;
+    margin: 100;
+    background-color: rgba(221, 221, 221, 0.219);
+    border-radius: 3%;
   }
 }
 

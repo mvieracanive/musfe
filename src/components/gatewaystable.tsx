@@ -1,5 +1,5 @@
 import React, {ReactNode} from "react";
-import { CityDto } from "../dtos/city.dto";
+import { GatewayDto } from "../dtos/gateway.dto";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -15,11 +15,11 @@ import ConfirmDelete from './confirmdelete';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import {CityService} from '../services/city.serv';
+import {GatewayService} from '../services/gateway.serv';
 import TablePagination from '@mui/material/TablePagination';
-import axios from 'axios';
-import {ServerPath} from '../config.js'
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddIcon from '@mui/icons-material/Add';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import TableFooter from '@mui/material/TableFooter';
 
@@ -28,7 +28,7 @@ type Props = {
     children?: ReactNode;
 }
 type State = {
-    cities: CityDto[];
+    gateways: GatewayDto[];
     openDialog: boolean;
     openSnackBar: boolean;
     severity: any;
@@ -44,15 +44,15 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export class CitiesTable extends React.Component<Props>{
-    row: CityDto;
+export class GatewaysTable extends React.Component<Props>{
+    row: GatewayDto;
     rowIndex: number;
 
     constructor(props: Props){
         super(props);  
         
         this.state = {
-            cities: [], 
+            gateways: [], 
             openDialog: false, 
             openSnackBar: false,
             page: 0,
@@ -69,7 +69,7 @@ export class CitiesTable extends React.Component<Props>{
         this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
     }
 
-    handleClickOpen (row: CityDto, index: number){
+    handleClickOpen (row: GatewayDto, index: number){
         this.setState({openDialog: true});
         this.row = row;
         this.rowIndex = index;
@@ -88,12 +88,12 @@ export class CitiesTable extends React.Component<Props>{
     };
 
     async handleDelRow(){
-        this.setState({cities: await CityService.getCities(), page: 0});        
+        this.setState({cities: await GatewayService.getGateways(), page: 0});        
     }
     
     async handleAPIDelete(){        
         try{
-            const data = await CityService.delCities(this.row.name);
+            const data = await GatewayService.delGateway(this.row.serial);
             this.handleDelRow();
             this.handleShowResultAlert('success', data.message);
             this.handleClose();
@@ -106,18 +106,18 @@ export class CitiesTable extends React.Component<Props>{
         };                
     }
 
-    loadCities(data:CityDto[]){ 
-        const cities:CityDto[] = [];
+    loadCities(data:GatewayDto[]){ 
+        const gateways:GatewayDto[] = [];
         data.forEach(element => {
-            cities.push(element)
+            gateways.push(element)
         }); 
-        this.setState({cities});
+        this.setState({gateways});
     }
 
     render(){
         return <div>
                 <Stack spacing={2} alignContent='left' direction="row">
-                    <Button style={{margin: 5}} variant="contained" onClick={()=>this.props.showForm(new CityDto())}>New City</Button>
+                    <Button style={{margin: 5}} variant="contained" onClick={()=>this.props.showForm(new GatewayDto())}>New Gatewaty</Button>
                 </Stack>
                 
                 <TableContainer component={Paper}>
@@ -125,18 +125,16 @@ export class CitiesTable extends React.Component<Props>{
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left">Action</TableCell>
-                                <TableCell>Name</TableCell>                                
-                                <TableCell align="right">Native Name</TableCell>
-                                <TableCell align="right">Country</TableCell>
-                                <TableCell align="right">Continent</TableCell>
-                                <TableCell align="right">Population</TableCell>
+                                <TableCell>Serial</TableCell>                                
+                                <TableCell align="right">Human Name</TableCell>
+                                <TableCell align="right">Ipv4</TableCell>
                                 
                             </TableRow>
                         </TableHead>
                         <TableBody>                         
                             {((this.state as State).rowsPerPage > 0
-                                ? (this.state as State).cities.slice((this.state as State).page * (this.state as State).rowsPerPage, (this.state as State).page * (this.state as State).rowsPerPage + (this.state as State).rowsPerPage)
-                                : (this.state as State).cities
+                                ? (this.state as State).gateways.slice((this.state as State).page * (this.state as State).rowsPerPage, (this.state as State).page * (this.state as State).rowsPerPage + (this.state as State).rowsPerPage)
+                                : (this.state as State).gateways
                             ).map((row, index) => (
                                 <TableRow
                                     key={index}
@@ -144,21 +142,21 @@ export class CitiesTable extends React.Component<Props>{
                                 >
                                     <TableCell align="left">
                                         <Stack alignContent="right" direction="row" spacing={1}>
-                                            <IconButton onClick={()=>this.handleClickOpen(row, index)} color="primary" aria-label="delete">
-                                                <DeleteIcon />
-                                            </IconButton>
+                                            <Tooltip title='Use Postman with POST localhost:3002/gateway/:{GW SERIAL}/peripheral using as body a JSON object as follows {"uid":1, "vendor":"EJFS", "status":"online" } or DELETE localhost:3002/gateway/:{GW SERIAL}/peripheral/:{UID})'>
+                                                <IconButton color="primary" aria-label="edit">
+                                                    <AddIcon/>
+                                                </IconButton>
+                                            </Tooltip>
                                             <IconButton color="primary" aria-label="edit" onClick={()=>this.props.showForm(row)}>
-                                                <EditIcon/>
+                                                <VisibilityIcon/>
                                             </IconButton>
                                         </Stack>
                                     </TableCell>
                                     <TableCell component="th" scope="row">
-                                        {row.name}
+                                        {row.serial}
                                     </TableCell>
-                                    <TableCell align="right">{row.name_native}</TableCell>
-                                    <TableCell align="right">{row.country}</TableCell>
-                                    <TableCell align="right">{row.continent}</TableCell>
-                                    <TableCell align="right">{row.population}</TableCell>                                    
+                                    <TableCell align="right">{row.human_name}</TableCell>
+                                    <TableCell align="right">{row.ipv4}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -167,7 +165,7 @@ export class CitiesTable extends React.Component<Props>{
                             <TablePagination
                                 rowsPerPageOptions={[10, 50, { label: 'All', value: -1 }]}
                                 colSpan={3}
-                                count={(this.state as State).cities.length}
+                                count={(this.state as State).gateways.length}
                                 rowsPerPage={(this.state as State).rowsPerPage}
                                 page={(this.state as State).page}
                                 SelectProps={{
@@ -214,8 +212,8 @@ export class CitiesTable extends React.Component<Props>{
     };
 
     async componentDidMount(){
-        const data = await CityService.getCities()
+        const data = await GatewayService.getGateways();
         this.loadCities(data);    
-        console.log(data)
+        console.log(data);
     }
 }

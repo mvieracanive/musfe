@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+FILE src/config.js MUST BE MODIFIED IN ORDER TO DEFINE THE BACK-END SERVER
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

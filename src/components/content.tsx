@@ -1,10 +1,11 @@
 import React, { ReactNode } from 'react';
-import { CityDto } from '../dtos/city.dto';
-import {CitiesTable} from './citiestable';
-import {FormCity} from './formcity';
+import { GatewayDto } from '../dtos/gateway.dto';
+import {GatewaysTable} from './gatewaystable';
+import {FormCity} from './formgateway';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { Landmarks } from './peripherals';
 
 type Props = {
     content_id: string;
@@ -24,7 +25,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export class Content extends React.Component<Props> {
-    city: CityDto;
+    gateway: GatewayDto;
     formmsg: string;
 
     constructor(props:Props){
@@ -38,9 +39,10 @@ export class Content extends React.Component<Props> {
         this.handleCloseSB = this.handleCloseSB.bind(this);
     }
 
-    showForm(dto: CityDto){
+    showForm(dto: GatewayDto, version: string = ''){
+        this.gateway = dto;
         this.setState({content: 'new'})
-        this.city = dto;
+        
     }
 
     showHome(msg: string){
@@ -59,11 +61,12 @@ export class Content extends React.Component<Props> {
         let scontent:ReactNode = null;
         switch ((this.state as State).content) {
             case 'home':
-                scontent = <CitiesTable showForm={this.showForm}/>;
+                scontent = <GatewaysTable showForm={this.showForm}/>;
                 break;
             case 'new':
-                scontent = <FormCity obj = {this.city} showHome={this.showHome}/>;
+                scontent = <FormCity obj = {this.gateway} showHome={this.showHome}/>;
                 break;
+            
         }
 
         return <div className = "Content">                    
